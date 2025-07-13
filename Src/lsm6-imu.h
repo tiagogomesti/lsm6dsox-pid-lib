@@ -10,8 +10,22 @@ extern "C" {
 
 typedef struct
 {
-    uint16_t acceleration;
-    uint16_t angularVelocity;
+    int32_t x;
+    int32_t y;
+    int32_t z;
+} acceleration_t;
+
+typedef struct
+{
+    int32_t x;
+    int32_t y;
+    int32_t z;
+} angularVelocity_t;
+
+typedef struct
+{
+    acceleration_t acceleration;
+    angularVelocity_t angularVelocity;
 } lsm6ImuData_t;
 
 bool lsm6_imu_init(void);

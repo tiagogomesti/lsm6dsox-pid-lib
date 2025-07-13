@@ -20,6 +20,7 @@ add_subdirectory(${googletest_SOURCE_DIR} ${GOOGLETEST_BINARY_DIR} EXCLUDE_FROM_
 
 add_executable(
     ut_lsm6-imu
+        ../Src/lsm6-imu.c
         ut_lsm6-imu.cpp
 )
 
@@ -28,14 +29,17 @@ target_link_libraries(
     PRIVATE
         gtest_main 
         gmock      
-        lsm6-imu
 )
 
 target_include_directories(ut_lsm6-imu PRIVATE
     ${googletest_SOURCE_DIR}/googletest/include
     ${googletest_SOURCE_DIR}/googlemock/include
-    ${CMAKE_CURRENT_SOURCE_DIR} 
+    ../HAL/DummyHal
+    ../Lib/lsm6dsox-pid
+    ../Src
 )
+
+
 
 enable_testing()
 
