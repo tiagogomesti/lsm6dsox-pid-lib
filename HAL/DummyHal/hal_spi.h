@@ -15,8 +15,8 @@ typedef enum
 } HalErrorType_t;
 
 HalErrorType_t hal_spi_init(void);
-HalErrorType_t hal_spi_read(void *optData, uint8_t reg, uint8_t *data, uint16_t len);
-HalErrorType_t hal_spi_write(void *optData, uint8_t reg, uint8_t *data, uint16_t len);
+int32_t hal_spi_read(void *optData, uint8_t reg, uint8_t *data, uint16_t len);
+int32_t hal_spi_write(void *optData, uint8_t reg, const uint8_t *data, uint16_t len);
 
 #ifdef __cplusplus
 }
