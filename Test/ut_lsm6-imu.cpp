@@ -298,3 +298,114 @@ TEST_F(Lsm6ImuTest, InitSuccess)
 
     ASSERT_TRUE(lsm6_imu_init());
 }
+
+TEST_F(Lsm6ImuTest, ReadData_FailReadAcceleration_DataNotReady)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+
+    ASSERT_TRUE(lsm6_imu_init());
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_flag_data_ready_get(_, _)).WillOnce(Return(HAL_ERROR));
+
+    lsm6ImuData_t data = lsm6_imu_read();
+
+    ASSERT_EQ(data.acceleration.x, 0);
+    ASSERT_EQ(data.acceleration.y, 0);
+    ASSERT_EQ(data.acceleration.z, 0);
+}
+
+TEST_F(Lsm6ImuTest, ReadData_FailReadAngularVelocity_DataNotReady)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+
+    ASSERT_TRUE(lsm6_imu_init());
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_flag_data_ready_get(_, _)).WillOnce(Return(HAL_ERROR));
+
+    lsm6ImuData_t data = lsm6_imu_read();
+
+    ASSERT_EQ(data.angularVelocity.x, 0);
+    ASSERT_EQ(data.angularVelocity.y, 0);
+    ASSERT_EQ(data.angularVelocity.z, 0);
+}
+
+TEST_F(Lsm6ImuTest, ReadData_Sucess)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+
+    ASSERT_TRUE(lsm6_imu_init());
+
+    uint8_t status = 1;
+    lsm6dsox_fs_xl_t acceleration_scale = LSM6DSOX_2g;
+    float acceleration_scale_out = LSM6DSOX_ACC_SENSITIVITY_FS_2G;
+    uint8_t expected_accelation[3] = {10, 20, 30};
+    lsm6dsox_fs_g_t angular_velocity_scale = LSM6DSOX_125dps;
+    float angular_velocity_scale_out = LSM6DSOX_GYRO_SENSITIVITY_FS_125DPS;
+    uint8_t expected_angular_velocity[3] = {20, 40, 60};
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_flag_data_ready_get(_, testing::NotNull()))
+        .WillOnce(testing::DoAll(testing::SetArgPointee<1>(status), testing::Return(HAL_NO_ERROR)));
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_acceleration_raw_get(_, testing::NotNull()))
+        .WillOnce(testing::DoAll(testing::SetArrayArgument<1>(expected_accelation, expected_accelation + 3),
+                                 testing::Return(HAL_NO_ERROR)));
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_get(_, testing::NotNull()))
+        .WillOnce(testing::DoAll(testing::SetArgPointee<1>(acceleration_scale), testing::Return(HAL_NO_ERROR)));
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_flag_data_ready_get(_, testing::NotNull()))
+        .WillOnce(testing::DoAll(testing::SetArgPointee<1>(status), testing::Return(HAL_NO_ERROR)));
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_angular_rate_raw_get(_, testing::NotNull()))
+        .WillOnce(testing::DoAll(testing::SetArrayArgument<1>(expected_angular_velocity, expected_angular_velocity + 3),
+                                 testing::Return(HAL_NO_ERROR)));
+
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_get(_, testing::NotNull()))
+        .WillOnce(testing::DoAll(testing::SetArgPointee<1>(angular_velocity_scale), testing::Return(HAL_NO_ERROR)));
+
+    lsm6ImuData_t data = lsm6_imu_read();
+
+    ASSERT_EQ(data.acceleration.x, (int32_t)(expected_accelation[0] * acceleration_scale_out));
+    ASSERT_EQ(data.acceleration.y, (int32_t)(expected_accelation[1] * acceleration_scale_out));
+    ASSERT_EQ(data.acceleration.z, (int32_t)(expected_accelation[2] * acceleration_scale_out));
+
+    ASSERT_EQ(data.angularVelocity.x, (int32_t)(expected_angular_velocity[0] * angular_velocity_scale_out));
+    ASSERT_EQ(data.angularVelocity.y, (int32_t)(expected_angular_velocity[1] * angular_velocity_scale_out));
+    ASSERT_EQ(data.angularVelocity.z, (int32_t)(expected_angular_velocity[2] * angular_velocity_scale_out));
+}
