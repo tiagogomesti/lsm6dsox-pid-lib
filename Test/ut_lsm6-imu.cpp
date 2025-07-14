@@ -5,7 +5,6 @@
 #include "lsm6-imu.h"
 #include "lsm6dsox_reg.h"
 
-// Using GMock and GTest namespaces
 using ::testing::_;
 using ::testing::DoAll;
 using ::testing::Return;
@@ -130,8 +129,8 @@ int32_t lsm6dsox_gy_full_scale_get(const stmdev_ctx_t *ctx, lsm6dsox_fs_g_t *val
 class Lsm6ImuTest : public ::testing::Test
 {
 protected:
-    MockHalSpi mockHalSpi;           // Instance of your mock object
-    MockLsm6dsoxReg mockLsm6dsoxReg; // Instance of your mock object
+    MockHalSpi mockHalSpi;
+    MockLsm6dsoxReg mockLsm6dsoxReg;
 
     void SetUp() override
     {

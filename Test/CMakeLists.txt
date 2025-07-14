@@ -1,11 +1,9 @@
-# (No seu Tests/CMakeLists.txt)
-
 include(FetchContent)
 
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.11.0 # Mantemos a tag para consistência
+  GIT_TAG        release-1.11.0
   DOWNLOAD_EXTRACT_TIMESTAMP true
   GIT_PROGRESS TRUE
 )
