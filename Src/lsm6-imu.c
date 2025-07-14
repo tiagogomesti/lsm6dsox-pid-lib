@@ -6,23 +6,6 @@
 #define LSM6DSOX_OK 0
 #define LSM6DSOX_NOK 1
 
-#define LSM6DSOX_ACC_SENSITIVITY_FS_2G 0.061f
-#define LSM6DSOX_ACC_SENSITIVITY_FS_4G 0.122f
-#define LSM6DSOX_ACC_SENSITIVITY_FS_8G 0.244f
-#define LSM6DSOX_ACC_SENSITIVITY_FS_16G 0.488f
-
-#define LSM6DSOX_GYRO_SENSITIVITY_FS_125DPS 4.375f
-#define LSM6DSOX_GYRO_SENSITIVITY_FS_250DPS 8.750f
-#define LSM6DSOX_GYRO_SENSITIVITY_FS_500DPS 17.500f
-#define LSM6DSOX_GYRO_SENSITIVITY_FS_1000DPS 35.000f
-#define LSM6DSOX_GYRO_SENSITIVITY_FS_2000DPS 70.000f
-
-typedef union
-{
-    uint16_t u16Data[3];
-    uint8_t u8Data[6];
-} u8U16Union_t;
-
 static acceleration_t read_acceleration();
 static int32_t get_accelaration_sensitivity(float *sensitivity_out);
 static angularVelocity_t read_angular_velocity();
@@ -105,16 +88,17 @@ static acceleration_t read_acceleration()
 {
     uint8_t status;
     acceleration_t accelaration = {0};
-    u8U16Union_t accelarationU8Union = {0};
+    uint16_t u16Data[3] = {0};
+
     float sensitivity = 0.0f;
 
     if ((lsm6dsox_xl_flag_data_ready_get(&g_stmdevCtx, &status) == LSM6DSOX_OK) && (status == 1) &&
-        (lsm6dsox_acceleration_raw_get(&g_stmdevCtx, accelarationU8Union.u16Data) == LSM6DSOX_OK) &&
+        (lsm6dsox_acceleration_raw_get(&g_stmdevCtx, u16Data) == LSM6DSOX_OK) &&
         (get_accelaration_sensitivity(&sensitivity) == LSM6DSOX_OK))
     {
-        accelaration.x = (int32_t)((float)((float)accelarationU8Union.u16Data[0] * sensitivity));
-        accelaration.y = (int32_t)((float)((float)accelarationU8Union.u16Data[1] * sensitivity));
-        accelaration.z = (int32_t)((float)((float)accelarationU8Union.u16Data[2] * sensitivity));
+        accelaration.x = (int32_t)((float)((float)u16Data[0] * sensitivity));
+        accelaration.y = (int32_t)((float)((float)u16Data[1] * sensitivity));
+        accelaration.z = (int32_t)((float)((float)u16Data[2] * sensitivity));
     }
 
     return accelaration;
@@ -161,16 +145,16 @@ static angularVelocity_t read_angular_velocity()
 {
     uint8_t status;
     angularVelocity_t angularVelocity = {0};
-    u8U16Union_t angularVelocityU8Union = {0};
+    uint16_t u16Data[3] = {0};
     float sensitivity = 0.0f;
 
     if ((lsm6dsox_gy_flag_data_ready_get(&g_stmdevCtx, &status) == LSM6DSOX_OK) && (status == 1) &&
-        (lsm6dsox_angular_rate_raw_get(&g_stmdevCtx, angularVelocityU8Union.u16Data) == LSM6DSOX_OK) &&
+        (lsm6dsox_angular_rate_raw_get(&g_stmdevCtx, u16Data) == LSM6DSOX_OK) &&
         (get_angular_velocity_sensitivity(&sensitivity) == LSM6DSOX_OK))
     {
-        angularVelocity.x = (int32_t)((float)((float)angularVelocityU8Union.u16Data[0] * sensitivity));
-        angularVelocity.y = (int32_t)((float)((float)angularVelocityU8Union.u16Data[1] * sensitivity));
-        angularVelocity.z = (int32_t)((float)((float)angularVelocityU8Union.u16Data[2] * sensitivity));
+        angularVelocity.x = (int32_t)((float)((float)u16Data[0] * sensitivity));
+        angularVelocity.y = (int32_t)((float)((float)u16Data[1] * sensitivity));
+        angularVelocity.z = (int32_t)((float)((float)u16Data[2] * sensitivity));
     }
 
     return angularVelocity;

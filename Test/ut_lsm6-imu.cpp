@@ -146,14 +146,155 @@ protected:
     }
 };
 
-TEST_F(Lsm6ImuTest, InitSuccessful)
+TEST_F(Lsm6ImuTest, InitFail_halInitializationFailed)
 {
     EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_ERROR));
+    ASSERT_FALSE(lsm6_imu_init());
+}
 
-    // int result = lsm6_imu_init();
-    // ASSERT_EQ(result, 0);
+TEST_F(Lsm6ImuTest, InitFail_failToDisableI3c)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_ERROR));
 
     ASSERT_FALSE(lsm6_imu_init());
+}
 
-    ASSERT_TRUE(true);
+TEST_F(Lsm6ImuTest, InitFail_failToSetAutoIncrement)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToSetBlockData)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToSetFifoMode)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToSetAccelerometerDataRate)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _)).WillOnce(Return(HAL_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToSetAccelerometerFullScale)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToSetGyroscopeDataRate)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _)).WillOnce(Return(HAL_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToSetGyroscopeFullScale)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_set(_, _)).WillOnce(Return(HAL_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToEnableAcceleromter)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitFail_failToEnableGyroscope)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+
+    ASSERT_FALSE(lsm6_imu_init());
+}
+
+TEST_F(Lsm6ImuTest, InitSuccess)
+{
+    EXPECT_CALL(mockHalSpi, hal_spi_init()).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_i3c_disable_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_auto_increment_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_block_data_update_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_fifo_mode_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_xl_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_data_rate_set(_, _))
+        .WillOnce(Return(HAL_NO_ERROR))
+        .WillOnce(Return(HAL_NO_ERROR));
+    EXPECT_CALL(mockLsm6dsoxReg, lsm6dsox_gy_full_scale_set(_, _)).WillOnce(Return(HAL_NO_ERROR));
+
+    ASSERT_TRUE(lsm6_imu_init());
 }
